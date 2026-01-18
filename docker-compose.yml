@@ -65,6 +65,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: development
     container_name: app_backend
     restart: unless-stopped
     ports:
@@ -106,8 +107,36 @@ services:
     depends_on:
       - backend
 
+  # pgAdmin - PostgreSQL GUI
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: app_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+  # Redis Insight - Redis GUI
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: app_redis_insight
+    restart: unless-stopped
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis_insight_data:/data
+
 volumes:
   postgres_data:
   neo4j_data:
   neo4j_logs:
   redis_data:
+  pgadmin_data:
+  redis_insight_data:

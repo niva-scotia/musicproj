@@ -47,6 +47,10 @@ docker-compose logs -f backend # Just backend
 
 docker-compose up -d --build
 
+# Shutting down everything
+
+docker-compose down
+
 # --- DATABASE ACCESS ---
 
 # PostgreSQL shell
@@ -130,3 +134,40 @@ cd frontend && npm run dev
 # OR run everything in Docker:
 
 docker-compose up -d
+
+# ============================================
+
+# DB VISUALIZAITION SETUP
+
+# ============================================
+
+## pgAdmin — Connect to PostgreSQL
+
+Open http://localhost:5050
+Right-click Servers → Register → Server
+General tab: Name it Local
+Connection tab:
+
+Host: postgres (Docker network name, not localhost)
+Port: 5432
+Username: postgres
+Password: postgres
+
+Click Save
+
+## Redis Insight — Connect to Redis
+
+Open http://localhost:5540
+Click Add Redis Database
+Enter:
+
+Host: host.docker.internal (or redis if on Linux)
+Port: 6379
+
+Click Add Database
+
+## Neo4j Browser
+
+Open http://localhost:7474
+Connect with neo4j / password123
+Run Cypher queries directly
