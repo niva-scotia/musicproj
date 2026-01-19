@@ -1,6 +1,3 @@
-# ============================================
-# backend/Dockerfile
-# ============================================
 # Development stage
 FROM node:20-alpine AS development
 WORKDIR /app

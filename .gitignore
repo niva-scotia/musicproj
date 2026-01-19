@@ -1,0 +1,95 @@
+# Environment files
+.env
+.env.*           # ignore all other env variants (local, development, production, etc.)
+!.env.example    # allow example files if present
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json.lockfile       # optional lockfile caches
+.npmrc
+.npm/
+
+# Build / output
+dist/
+build/
+out/
+. next/           # Next.js (if used)
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.public/
+coverage/
+coverage-final.json
+*.tgz
+
+# Logs and runtime files
+logs/
+*.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+tmp/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+Icon?
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# JetBrains
+*.iml
+*.iws
+.idea/
+
+# Misc
+*.env.*.local
+local.env
+secrets.env
+.envrc
+.env.local
+
+# Keys, certificates, credentials
+*.pem
+*.key
+*.pub
+*.p12
+*.jks
+*.crt
+*.csr
+*.der
+
+# Swap / backup files
+*~
+*.swp
+*.swo
+*.bak
+*.orig
+
+# Docker
+docker-compose.override.yml
+.env.docker
+
+# Ignore compiled python artifacts if present
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+
+# Ignore build artifacts for other languages/tools
+.gradle/
+target/
+.idea/

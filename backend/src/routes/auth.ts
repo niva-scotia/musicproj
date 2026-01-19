@@ -101,4 +101,74 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   res.json({ user: req.user });
 });
 
+// FR-3: Request password reset
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await query('SELECT id, email FROM users WHERE email = $1', [email]);
+    
+    // Always return success to prevent email enumeration
+    if (!user.rows[0]) {
+      return res.json({ message: 'If email exists, reset link sent' });
+    }
+
+    // Generate reset token
+    const crypto = await import('crypto');
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+
+    await query(
+      `INSERT INTO password_reset_tokens (user_id, token, expires_at)
+       VALUES ($1, $2, $3)`,
+      [user.rows[0].id, token, expiresAt]
+    );
+
+    // TODO: Send email with reset link
+    // For now, log to console in development
+    console.log(`Password reset link: /reset-password?token=${token}`);
+
+    res.json({ message: 'If email exists, reset link sent' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to process request' });
+  }
+});
+
+// FR-3: Reset password with token
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password required' });
+    }
+
+    // Find valid token
+    const tokenResult = await query(
+      `SELECT * FROM password_reset_tokens 
+       WHERE token = $1 AND used = FALSE AND expires_at > NOW()`,
+      [token]
+    );
+
+    if (!tokenResult.rows[0]) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    // Hash new password and update
+    const hashedPassword = await hashPassword(newPassword);
+    await query('UPDATE users SET password = $1 WHERE id = $2', 
+      [hashedPassword, tokenResult.rows[0].user_id]
+    );
+
+    // Mark token as used
+    await query('UPDATE password_reset_tokens SET used = TRUE WHERE id = $1',
+      [tokenResult.rows[0].id]
+    );
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
 export default router;

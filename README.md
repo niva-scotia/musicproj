@@ -165,9 +165,3 @@ Host: host.docker.internal (or redis if on Linux)
 Port: 6379
 
 Click Add Database
-
-## Neo4j Browser
-
-Open http://localhost:7474
-Connect with neo4j / password123
-Run Cypher queries directly

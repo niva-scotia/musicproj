@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { UserPayload } from '../middleware/auth';
-import { redisDb } from '../config'
+import { redisDb } from '../config';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-me';
 const ACCESS_TOKEN_EXPIRY = '15m';

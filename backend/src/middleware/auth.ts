@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { redisDb } from '../config'
+import { redisDb } from '../config';
 
 export interface UserPayload {
   id: string;
