@@ -10,6 +10,8 @@ super cool no troll app
 
 # From root directory:
 
+- Remember to run docker compose down --> docker compose up -d --build during code changes.
+
 # npm run dev # Run both frontend and backend
 
 # npm run dev:backend # Run only backend
