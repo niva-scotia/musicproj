@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '../context/useAuth'
+import { useAuth } from '../context/useAuth';
 import { songsApi, reviewsApi, playlistsApi } from '../lib/api';
+import { Star, Music, Play, Pause, Plus, Trash2, Loader2 } from 'lucide-react';
 
 interface Song {
   id: string;
@@ -14,7 +15,6 @@ interface Song {
   durationMs: number;
   previewUrl?: string;
   releaseDate?: string;
-  genres?: string[];
 }
 
 interface Review {
@@ -40,7 +40,6 @@ const formatDuration = (ms: number) => {
 const formatDate = (date: string) =>
   new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-// Interactive star rating
 const StarRating = ({ rating, onChange, readonly = false }: { rating: number; onChange?: (r: number) => void; readonly?: boolean }) => {
   const [hover, setHover] = useState(0);
   return (
@@ -55,13 +54,9 @@ const StarRating = ({ rating, onChange, readonly = false }: { rating: number; on
           onMouseLeave={() => !readonly && setHover(0)}
           className={`${readonly ? 'cursor-default' : 'cursor-pointer'} transition-transform ${!readonly && 'hover:scale-110'}`}
         >
-          <svg
-            className={`w-6 h-6 ${(hover || rating) >= star ? 'text-yellow-400' : 'text-gray-600'}`}
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
+          <Star
+            className={`w-6 h-6 ${(hover || rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`}
+          />
         </button>
       ))}
     </div>
@@ -79,18 +74,15 @@ export default function SongDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Review form
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewContent, setReviewContent] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [userReview, setUserReview] = useState<Review | null>(null);
 
-  // Playlist modal
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [addingToPlaylist, setAddingToPlaylist] = useState<string | null>(null);
 
-  // Audio preview
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
@@ -108,7 +100,6 @@ export default function SongDetail() {
         setReviews(reviewsRes.data.reviews || []);
         setPlaylists(playlistsRes.data.playlists || []);
 
-        // Check if user has already reviewed
         const existing = (reviewsRes.data.reviews || []).find((r: Review) => r.user.id === user?.id);
         if (existing) {
           setUserReview(existing);
@@ -116,12 +107,11 @@ export default function SongDetail() {
           setReviewContent(existing.content);
         }
 
-        // Fetch recommendations
         try {
           const recRes = await songsApi.getRecommendations(id);
           setRecommendations(recRes.data.recommendations || []);
         } catch {
-          // Recommendations are optional
+          // Filler
         }
       } catch {
         setError('Failed to load song details');
@@ -204,7 +194,7 @@ export default function SongDetail() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
       </div>
     );
   }
@@ -220,18 +210,14 @@ export default function SongDetail() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Song header */}
       <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-6">
-          {/* Album art */}
           <div className="relative shrink-0 group">
             {song.imageUrl ? (
               <img src={song.imageUrl} alt={song.name} className="w-48 h-48 sm:w-56 sm:h-56 rounded-xl object-cover shadow-2xl" />
             ) : (
               <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-xl bg-gray-700 flex items-center justify-center">
-                <svg className="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                </svg>
+                <Music className="w-16 h-16 text-gray-500" />
               </div>
             )}
             {song.previewUrl && (
@@ -241,20 +227,15 @@ export default function SongDetail() {
               >
                 <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center">
                   {isPlaying ? (
-                    <svg className="w-6 h-6 text-gray-900" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                    </svg>
+                    <Pause className="w-6 h-6 text-gray-900" />
                   ) : (
-                    <svg className="w-6 h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
+                    <Play className="w-6 h-6 text-gray-900 ml-1" />
                   )}
                 </div>
               </button>
             )}
           </div>
 
-          {/* Info */}
           <div className="flex-1">
             <p className="text-sm text-indigo-400 font-medium mb-1">SONG</p>
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">{song.name}</h1>
@@ -274,24 +255,19 @@ export default function SongDetail() {
               </div>
             )}
 
-            {/* Actions */}
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => setShowReviewForm(true)}
                 className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
+                <Star className="w-5 h-5" />
                 {userReview ? 'Edit Review' : 'Write Review'}
               </button>
               <button
                 onClick={() => setShowPlaylistModal(true)}
                 className="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="w-5 h-5" />
                 Add to Playlist
               </button>
             </div>
@@ -300,17 +276,13 @@ export default function SongDetail() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Reviews */}
         <div className="lg:col-span-2">
           <h2 className="text-xl font-semibold text-white mb-4">Reviews ({reviews.length})</h2>
           
           {reviews.length === 0 ? (
             <div className="bg-gray-900 rounded-xl p-8 border border-gray-800 text-center">
               <p className="text-gray-400 mb-4">No reviews yet. Be the first!</p>
-              <button
-                onClick={() => setShowReviewForm(true)}
-                className="text-indigo-400 hover:text-indigo-300"
-              >
+              <button onClick={() => setShowReviewForm(true)} className="text-indigo-400 hover:text-indigo-300">
                 Write a review →
               </button>
             </div>
@@ -340,9 +312,7 @@ export default function SongDetail() {
                     </div>
                     {review.user.id === user?.id && (
                       <button onClick={handleDeleteReview} className="text-gray-500 hover:text-red-400 p-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     )}
                   </div>
@@ -352,7 +322,6 @@ export default function SongDetail() {
           )}
         </div>
 
-        {/* Recommendations */}
         <div>
           <h2 className="text-xl font-semibold text-white mb-4">Similar Songs</h2>
           {recommendations.length === 0 ? (
@@ -383,7 +352,6 @@ export default function SongDetail() {
         </div>
       </div>
 
-      {/* Review Modal */}
       {showReviewForm && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowReviewForm(false)}>
           <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-gray-800" onClick={e => e.stopPropagation()}>
@@ -407,7 +375,8 @@ export default function SongDetail() {
                 <button type="button" onClick={() => setShowReviewForm(false)} className="flex-1 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg">
                   Cancel
                 </button>
-                <button type="submit" disabled={reviewRating === 0 || isSubmittingReview} className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-600/50 text-white rounded-lg">
+                <button type="submit" disabled={reviewRating === 0 || isSubmittingReview} className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-600/50 text-white rounded-lg flex items-center justify-center gap-2">
+                  {isSubmittingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {isSubmittingReview ? 'Saving...' : 'Submit'}
                 </button>
               </div>
@@ -416,7 +385,6 @@ export default function SongDetail() {
         </div>
       )}
 
-      {/* Playlist Modal */}
       {showPlaylistModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowPlaylistModal(false)}>
           <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-gray-800" onClick={e => e.stopPropagation()}>
@@ -433,17 +401,13 @@ export default function SongDetail() {
                     className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors text-left"
                   >
                     <div className="w-10 h-10 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
-                      </svg>
+                      <Music className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-white">{playlist.name}</p>
                       <p className="text-xs text-gray-500">{playlist.songCount} songs</p>
                     </div>
-                    {addingToPlaylist === playlist.id && (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600" />
-                    )}
+                    {addingToPlaylist === playlist.id && <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />}
                   </button>
                 ))}
               </div>

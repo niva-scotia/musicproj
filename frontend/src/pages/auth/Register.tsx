@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/useAuth'
-import axios from "axios"
+import { useAuth } from '../../context/useAuth';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -51,21 +51,14 @@ export default function Register() {
     setIsLoading(true);
     try {
       await register(formData.email, formData.username, formData.password);
-      navigate('/');
-    } catch (err: unknown) {
-  if (axios.isAxiosError(err)) {
-    setError(err.response?.data?.message || 'Registration failed. Please try again.');
-  } else if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError('An unexpected error occurred');
-  }
+      navigate('/home');
+    } catch{
+      setError('Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Password strength indicator
   const getPasswordStrength = () => {
     const { password } = formData;
     if (!password) return { score: 0, label: '', color: '' };
@@ -152,7 +145,7 @@ export default function Register() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
             >
-              {showPassword ? '🙈' : '👁️'}
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
           {formData.password && (
@@ -196,10 +189,7 @@ export default function Register() {
         >
           {isLoading ? (
             <>
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
+              <Loader2 className="w-5 h-5 animate-spin" />
               Creating account...
             </>
           ) : (

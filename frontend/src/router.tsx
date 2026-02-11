@@ -20,7 +20,12 @@ import Profile from './pages/Profile';
 import Playlist from './pages/Playlist';
 import Settings from './pages/Settings';
 
+// Landing Page
+import Landing from './pages/Landing';
+
 export const router = createBrowserRouter([
+  // Landing page (public, redirects to /home if logged in)
+  { path: '/', element: <Landing /> },
   // Auth routes (guest only)
   {
     element: <GuestRoute />,
@@ -44,7 +49,7 @@ export const router = createBrowserRouter([
       {
         element: <MainLayout />,
         children: [
-          { path: '/', element: <Home /> },
+          { path: '/home', element: <Home /> },
           { path: '/search', element: <Search /> },
           { path: '/song/:id', element: <SongDetail /> },
           { path: '/profile/:userId?', element: <Profile /> },
