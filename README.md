@@ -30,7 +30,7 @@ super cool no troll app
 
 # Start all services (databases only)
 
-docker-compose up postgres neo4j redis -d
+docker-compose up postgres redis -d
 
 # Start everything including app
 
@@ -62,8 +62,6 @@ docker exec -it app_postgres psql -U postgres -d myapp
 # Redis CLI
 
 docker exec -it app_redis redis-cli
-
-# Neo4j (access via browser: http://localhost:7474)
 
 # --- CLEANUP ---
 
@@ -119,7 +117,7 @@ cp .env.example .env
 
 # 2. Start databases
 
-docker-compose up postgres neo4j redis -d
+docker-compose up postgres redis -d
 
 # 3. Wait for healthy status
 
